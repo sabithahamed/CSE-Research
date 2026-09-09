@@ -1,0 +1,4 @@
+Regime,N,Mean pairwise corr,ASPI variance
+Pre-Crisis,703,0.383,1.388
+Crisis,200,0.478,4.776
+Recovery,655,0.309,0.847

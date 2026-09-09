@@ -1,0 +1,9 @@
+regime,N,lag_rule,k_ar_diff,johansen_rank,index_weight,implied_fx,ci_lo,ci_hi
+Pre-COVID,266,fixed k=5,5,0,0.0523,18.817,10.739,26.894
+Pre-COVID,266,BIC per regime,1,0,0.0241,31.768,14.487,49.049
+COVID,438,fixed k=5,5,1,0.1683,1.706,0.438,2.974
+COVID,438,BIC per regime,1,1,0.1632,1.244,-0.591,3.079
+Default,200,fixed k=5,5,2,0.1108,6.988,4.6,9.375
+Default,200,BIC per regime,1,4,0.0742,-14.09,-20.491,-7.69
+Recovery,655,fixed k=5,5,0,0.0209,-14.462,-23.088,-5.835
+Recovery,655,BIC per regime,1,0,0.0251,-12.802,-21.242,-4.363

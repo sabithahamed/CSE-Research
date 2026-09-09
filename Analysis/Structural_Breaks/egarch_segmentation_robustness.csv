@@ -1,0 +1,3 @@
+Segmentation,Crisis window,N,alpha,beta,gamma,gamma_p,sectors_sig_neg_gamma
+Policy milestones,2022-03-01 to 2023-02-28,234,0.56,0.797,-0.15,0.0312,6/14
+Detected breaks,2022-01-25 to 2022-12-05,200,0.481,0.647,-0.221,0.0047,9/14
