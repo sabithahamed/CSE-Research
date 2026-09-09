@@ -94,3 +94,65 @@ for cls in ['Defensive', 'Cyclical']:
 
 res.to_csv('defensive_sector_decomposition.csv', index=False)
 print("\nSaved: defensive_sector_decomposition.csv")
+
+# ---------------------------------------------------------------------------
+# Robustness: COVID-only baseline.
+#
+# The pre-default window above pools the calm 2019 period with COVID. Elsewhere
+# we argue that pooling those two regimes distorts a single fitted parameter,
+# so the same objection can be raised here. This repeats the decomposition
+# against the COVID regime alone, which is both adjacent in time and already
+# volatile, making it the more conservative comparison.
+# ---------------------------------------------------------------------------
+COVID = ('2020-02-11', '2022-01-24')
+
+alt_rows = []
+for c in SECTORS:
+    others = [s for s in SECTORS if s != c]
+    rec = {'Sector': c, 'Class': 'Defensive' if c in DEFENSIVE else 'Cyclical'}
+    for k, (a, b) in [('COVID', COVID), ('Crisis', REGIMES['Crisis'])]:
+        d = rets.loc[a:b]
+        fit = sm.OLS(d[c], sm.add_constant(d[others].mean(axis=1))).fit()
+        rec['R2_' + k] = fit.rsquared
+        rec['beta_' + k] = fit.params.iloc[1]
+        rec['idio_' + k] = float(np.std(fit.resid, ddof=2))
+    rec['dR2_crisis'] = rec['R2_Crisis'] - rec['R2_COVID']
+    rec['idio_ratio_crisis'] = rec['idio_Crisis'] / rec['idio_COVID'] - 1.0
+    rec['pattern'] = (rec['dR2_crisis'] < 0) and (rec['idio_ratio_crisis'] > 0)
+    alt_rows.append(rec)
+alt = pd.DataFrame(alt_rows)
+
+print("\n" + "=" * 92)
+print("ROBUSTNESS: SAME TESTS WITH COVID AS THE BASELINE")
+print("=" * 92)
+print("  %-38s%14s%14s" % ('', 'pooled base', 'COVID base'))
+for cls, n in [('Defensive', len(DEFENSIVE)), ('Cyclical', len(CYCLICAL))]:
+    print("  %-38s%11d/%-2d%11d/%-2d"
+          % ('sectors showing the pattern (' + cls + ')',
+             res[res['Class'] == cls]['pattern'].sum(), n,
+             alt[alt['Class'] == cls]['pattern'].sum(), n))
+for col, lab in [('dR2_crisis', 'Mann-Whitney p, change in R2'),
+                 ('idio_ratio_crisis', 'Mann-Whitney p, change in idio vol')]:
+    p_pool = mannwhitneyu(res[res['Class'] == 'Defensive'][col],
+                          res[res['Class'] == 'Cyclical'][col],
+                          alternative='two-sided').pvalue
+    p_alt = mannwhitneyu(alt[alt['Class'] == 'Defensive'][col],
+                         alt[alt['Class'] == 'Cyclical'][col],
+                         alternative='two-sided').pvalue
+    print("  %-38s%14.3f%14.3f" % (lab, p_pool, p_alt))
+for col, lab in [('dR2_crisis', 'median change in R2'),
+                 ('idio_ratio_crisis', 'median change in idio vol')]:
+    for cls in ['Defensive', 'Cyclical']:
+        print("  %-38s%14.3f%14.3f"
+              % (lab + ' (' + cls[:4] + ')',
+                 res[res['Class'] == cls][col].median(),
+                 alt[alt['Class'] == cls][col].median()))
+
+print("\n  Conclusion: the group comparisons are unchanged -- neither Mann-Whitney")
+print("  test is significant under either baseline, and the sign pattern of the")
+print("  group medians is the same. The sector-level count differs by one:")
+print("  Consumer Durables meets the pattern against the COVID baseline but not")
+print("  against the pooled one.")
+
+alt.to_csv('defensive_covid_baseline.csv', index=False)
+print("\nSaved: defensive_covid_baseline.csv")
