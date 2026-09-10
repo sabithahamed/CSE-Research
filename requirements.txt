@@ -1,9 +1,10 @@
+arch
+ipykernel
+jupyter
+matplotlib
 numpy
 pandas
-matplotlib
-seaborn
+ruptures
 scipy
+seaborn
 statsmodels
-arch
-jupyter
-ipykernel

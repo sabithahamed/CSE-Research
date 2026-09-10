@@ -153,20 +153,26 @@ bic_df.to_csv('break_selection_bic.csv', index=False)
 robust_df.to_csv('egarch_segmentation_robustness.csv', index=False)
 pd.DataFrame({'break_date': [str(d.date()) for d in breaks]}).to_csv('detected_breaks.csv', index=False)
 
-fig, ax = plt.subplots(figsize=(10, 4.2))
-ax.plot(r.index, r.values, lw=0.6, color='#3b4a6b')
-ymax = ax.get_ylim()[1]
+# The figure is generated at its final printed size, 3.5 in wide, which is one
+# column of the paper. Nothing is scaled on the way in, so the 7pt fonts set
+# here are the 7pt fonts that print. The break dates are given in the text and
+# the dashed/dotted distinction in the caption, so neither is repeated in the
+# plot, where at this size they would be illegible.
+plt.rcParams.update({'font.size': 7, 'axes.labelsize': 7,
+                     'xtick.labelsize': 6.5, 'ytick.labelsize': 6.5})
+
+fig, ax = plt.subplots(figsize=(3.5, 1.5))
+ax.plot(r.index, r.values, lw=0.4, color='#3b4a6b')
 for d in breaks:
-    ax.axvline(d, color='#c1272d', ls='--', lw=1.6)
-    ax.text(d, ymax * 0.95, " " + str(d.date()), color='#c1272d',
-            fontsize=8, rotation=90, va='top')
+    ax.axvline(d, color='#c1272d', ls='--', lw=1.0)
 for lab in ['Crisis', 'Recovery']:
-    ax.axvline(pd.Timestamp(POLICY[lab][0]), color='#777777', ls=':', lw=1.3)
+    ax.axvline(pd.Timestamp(POLICY[lab][0]), color='#777777', ls=':', lw=0.9)
 ax.set_ylabel('ASPI log return (%)')
 ax.set_xlabel('Date')
-ax.set_title('Estimated variance breaks (dashed) and policy-milestone boundaries (dotted)')
 ax.margins(x=0.01)
-fig.tight_layout()
-fig.savefig('Structural_Breaks_ASPI.png', dpi=300)
+for s in ('top', 'right'):
+    ax.spines[s].set_visible(False)
+fig.tight_layout(pad=0.2)
+fig.savefig('Structural_Breaks_ASPI.png', dpi=600)
 print("\nSaved: break_selection_bic.csv, detected_breaks.csv, "
       "egarch_segmentation_robustness.csv, Structural_Breaks_ASPI.png")
