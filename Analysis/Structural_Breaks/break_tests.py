@@ -167,6 +167,18 @@ for d in breaks:
     ax.axvline(d, color='#c1272d', ls='--', lw=1.0)
 for lab in ['Crisis', 'Recovery']:
     ax.axvline(pd.Timestamp(POLICY[lab][0]), color='#777777', ls=':', lw=0.9)
+
+# Name the four estimated regimes. The labels sit in a band of headroom added
+# above the series so they never collide with the returns.
+edges = [r.index[0]] + list(breaks) + [r.index[-1]]
+y0, y1 = ax.get_ylim()
+ax.set_ylim(y0, y1 + 0.34 * (y1 - y0))
+y_lab = y1 + 0.04 * (y1 - y0)
+for (a, b), name in zip(zip(edges[:-1], edges[1:]),
+                        ['Pre-COVID', 'COVID', 'Default', 'Recovery']):
+    ax.text(a + (b - a) / 2, y_lab, name, ha='center', va='bottom',
+            fontsize=6, color='#222222')
+
 ax.set_ylabel('ASPI log return (%)')
 ax.set_xlabel('Date')
 ax.margins(x=0.01)
